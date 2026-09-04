@@ -147,7 +147,7 @@ namespace HongMao
 
         List<AttackDefinition> BuildAttackDefinitions()
         {
-            AttackDefinition[] persisted = Resources.LoadAll<AttackDefinition>("Attacks");
+            AttackDefinition[] persisted = UnityEngine.Resources.LoadAll<AttackDefinition>("Attacks");
             if (persisted.Length >= 11) return new List<AttackDefinition>(persisted);
 
             return new List<AttackDefinition>

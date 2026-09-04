@@ -45,7 +45,7 @@ namespace HongMao
 
         void OnGUI()
         {
-            if (m_Player == null || m_Enemy == null) return;
+            if (m_Player == null || m_Enemy == null || m_Combat == null || m_Resources == null || m_Flow == null) return;
             EnsureStyles();
             DrawPanel(new Rect(18, 16, 410, 142), new Color(0.04f, 0.05f, 0.07f, 0.82f));
             GUI.Label(new Rect(32, 24, 180, 30), "玩家", m_Title);

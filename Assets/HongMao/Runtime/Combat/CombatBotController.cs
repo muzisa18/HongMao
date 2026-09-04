@@ -20,6 +20,7 @@ namespace HongMao
         Coroutine m_Action;
         int m_AttackIndex;
         int m_AttackId = 1000;
+        float m_OpeningGrace = 2.5f;
         bool m_Staggered;
         bool m_CombatEnabled = true;
 
@@ -58,6 +59,13 @@ namespace HongMao
         {
             if (!m_CombatEnabled || m_Body == null || m_Body.IsDead || m_Player == null || m_PlayerBody.IsDead || m_Staggered || m_Action != null)
                 return;
+
+            if (m_OpeningGrace > 0f)
+            {
+                m_OpeningGrace -= Time.fixedDeltaTime;
+                m_Rigidbody.linearVelocity = new Vector2(0f, m_Rigidbody.linearVelocity.y);
+                return;
+            }
 
             float delta = m_Player.position.x - transform.position.x;
             if (Mathf.Abs(delta) > AttackRange)
@@ -114,7 +122,7 @@ namespace HongMao
             }
 
             m_Renderer.color = new Color(0.24f, 0.28f, 0.34f);
-            yield return new WaitForSeconds(0.55f);
+            yield return new WaitForSeconds(0.75f);
             m_Action = null;
         }
 
