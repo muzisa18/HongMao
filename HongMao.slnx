@@ -1,0 +1,5 @@
+﻿<Solution>
+  <Project Path="HongMao.Runtime.csproj" />
+  <Project Path="HongMao.Tests.EditMode.csproj" />
+  <Project Path="HongMao.Tests.PlayMode.csproj" />
+</Solution>

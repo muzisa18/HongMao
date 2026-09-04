@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f17c20b9e3c9245a7a00aee9fcc97068, type: 3}
+  m_Name: DashSlash
+  m_EditorClassIdentifier: HongMao.Runtime::HongMao.AttackDefinition
+  kind: 4
+  startup: 0.12
+  active: 0.1
+  recovery: 0.25
+  healthDamage: 24
+  poiseDamage: 38
+  knockback: {x: 6, y: 1.8}
+  hitboxSize: {x: 2.5, y: 1.5}
+  hitboxOffset: {x: 1.3, y: 0.05}
+  movementImpulse: 7
+  launches: 0

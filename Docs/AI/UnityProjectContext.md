@@ -1,0 +1,26 @@
+# HongMao Unity Project Context
+
+- Unity: 6000.3.23f1
+- Render pipeline: Universal Render Pipeline 17.3.0, 2D Renderer
+- Input: Input System 1.20.0; keyboard and mouse prototype controls
+- AI integration: Unity AI Assistant 2.19.0-pre.2; official Unity MCP relay
+- Project root: `/Users/liqiuxuan/Projects/coursework/中国风2D游戏开发/HongMao`
+- Runtime root: `Assets/HongMao/Runtime`
+- Prototype scene: `Assets/HongMao/Scenes/PrototypeCombat.unity`
+- Assemblies: `HongMao.Runtime`, `HongMao.Tests.EditMode`, `HongMao.Tests.PlayMode`
+- Scene composition: `PrototypeInstaller` is the composition root; combat systems use explicit references and no global singleton.
+- State authority: `CombatResourceModel` owns charge, color slots, empowered attack, and mask duration. `CombatantBody` owns health, poise, invulnerability, and parry resolution. `CombatTimeController` alone writes `Time.timeScale`.
+- Verification: compile in Unity, inspect Console through Unity MCP, run EditMode/PlayMode tests, then perform the documented manual route in Play Mode.
+
+## Prototype controls
+
+- A/D: move
+- Space: jump
+- Shift: dodge
+- Left mouse: attack/confirm absorb
+- Right mouse: parry/cancel absorb
+- Q: enter or cancel absorb
+- R: activate red mask
+- W + left mouse: empowered uppercut
+- Airborne S + left mouse: empowered dive slam
+- Enter: restart after victory or defeat

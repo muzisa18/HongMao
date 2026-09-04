@@ -1,0 +1,13 @@
+{
+  "name": "HongMao.Tests.PlayMode",
+  "rootNamespace": "HongMao.Tests",
+  "references": [
+    "HongMao.Runtime"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [],
+  "autoReferenced": false,
+  "noEngineReferences": false
+}
