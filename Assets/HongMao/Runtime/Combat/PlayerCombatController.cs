@@ -8,12 +8,6 @@ namespace HongMao
     [RequireComponent(typeof(PlayerMotor2D), typeof(PlayerInputReader), typeof(CombatantBody))]
     public sealed class PlayerCombatController : MonoBehaviour
     {
-        const float DodgeDuration = 0.3f;
-        const float DodgeInvulnerability = 0.18f;
-        const float DodgeCooldown = 0.45f;
-        const float ParryWindow = 0.18f;
-        const float ParryRecovery = 0.3f;
-
         readonly Dictionary<AttackKind, AttackDefinition> m_Attacks = new();
         readonly HashSet<int> m_RewardedEnemyAttacks = new();
         readonly List<RedColorSource> m_ColorSources = new();
@@ -26,6 +20,8 @@ namespace HongMao
         PrototypeAudio m_Audio;
         PrototypeFeedback m_Feedback;
         SpriteRenderer m_Renderer;
+        PrototypeCharacterVisual m_Visual;
+        PlayerDefinition m_Definition;
         Coroutine m_Action;
         float m_DodgeCooldownRemaining;
         bool m_ActionBusy;
@@ -44,18 +40,20 @@ namespace HongMao
 
         public void Configure(CombatResourceModel resources, CombatTimeController timeController,
             PrototypeAudio audio, PrototypeFeedback feedback, IEnumerable<AttackDefinition> attacks,
-            IEnumerable<RedColorSource> sources)
+            IEnumerable<RedColorSource> sources, PlayerDefinition definition = null)
         {
             m_Input = GetComponent<PlayerInputReader>();
             m_Motor = GetComponent<PlayerMotor2D>();
             m_Body = GetComponent<CombatantBody>();
             m_Renderer = GetComponent<SpriteRenderer>();
+            m_Visual = GetComponent<PrototypeCharacterVisual>();
+            m_Definition = definition;
             m_Resources = resources;
             m_Time = timeController;
             m_Audio = audio;
             m_Feedback = feedback;
             m_Attacks.Clear();
-            foreach (AttackDefinition definition in attacks) m_Attacks[definition.kind] = definition;
+            foreach (AttackDefinition attackDefinition in attacks) m_Attacks[attackDefinition.kind] = attackDefinition;
             m_ColorSources.Clear();
             m_ColorSources.AddRange(sources);
             m_Body.HitResolved += OnIncomingHitResolved;
@@ -113,9 +111,9 @@ namespace HongMao
             if (m_Input.DodgePressed && m_DodgeCooldownRemaining <= 0f && (!m_ActionBusy || m_CanCancelAttack))
             {
                 CancelCurrentAction();
-                if (m_Motor.TryBeginDodge(DodgeDuration))
+                if (m_Motor.TryBeginDodge(Definition.dodgeDuration))
                 {
-                    m_DodgeCooldownRemaining = DodgeCooldown;
+                    m_DodgeCooldownRemaining = Definition.dodgeCooldown;
                     m_Action = StartCoroutine(DodgeRoutine());
                     return true;
                 }
@@ -134,9 +132,9 @@ namespace HongMao
         {
             m_ActionBusy = true;
             m_Body.IsInvulnerable = true;
-            yield return new WaitForSeconds(DodgeInvulnerability);
+            yield return new WaitForSeconds(Definition.dodgeInvulnerability);
             m_Body.IsInvulnerable = false;
-            float remainder = Mathf.Max(0f, DodgeDuration - DodgeInvulnerability);
+            float remainder = Mathf.Max(0f, Definition.dodgeDuration - Definition.dodgeInvulnerability);
             if (remainder > 0f) yield return new WaitForSeconds(remainder);
             FinishAction();
         }
@@ -145,10 +143,10 @@ namespace HongMao
         {
             m_ActionBusy = true;
             m_Body.IsParrying = true;
-            m_Renderer.color = new Color(0.4f, 0.85f, 1f);
-            yield return new WaitForSeconds(ParryWindow);
+            SetVisualTint(new Color(0.4f, 0.85f, 1f));
+            yield return new WaitForSeconds(Definition.parryWindow);
             m_Body.IsParrying = false;
-            yield return new WaitForSeconds(ParryRecovery);
+            yield return new WaitForSeconds(Definition.parryRecovery);
             FinishAction();
         }
 
@@ -308,11 +306,33 @@ namespace HongMao
 
         void UpdateMaskVisual()
         {
-            if (m_Renderer == null) return;
             if (m_Resources != null && m_Resources.IsMaskActive)
-                m_Renderer.color = Color.Lerp(new Color(0.72f, 0.02f, 0.02f), new Color(1f, 0.35f, 0.08f), Mathf.PingPong(Time.unscaledTime * 2f, 1f));
+                SetVisualTint(Color.Lerp(new Color(0.72f, 0.02f, 0.02f), new Color(1f, 0.35f, 0.08f), Mathf.PingPong(Time.unscaledTime * 2f, 1f)));
             else if (!m_ActionBusy || (!m_Body.IsParrying && !m_Body.IsDead))
-                m_Renderer.color = new Color(0.1f, 0.52f, 0.82f);
+                ClearVisualTint();
+        }
+
+        PlayerDefinition Definition
+        {
+            get
+            {
+                if (m_Definition != null) return m_Definition;
+                m_Definition = ScriptableObject.CreateInstance<PlayerDefinition>();
+                m_Definition.hideFlags = HideFlags.HideAndDontSave;
+                return m_Definition;
+            }
+        }
+
+        void SetVisualTint(Color color)
+        {
+            if (m_Visual != null) m_Visual.SetTint(color);
+            else if (m_Renderer != null) m_Renderer.color = color;
+        }
+
+        void ClearVisualTint()
+        {
+            if (m_Visual != null) m_Visual.ClearTint();
+            else if (m_Renderer != null) m_Renderer.color = new Color(0.1f, 0.52f, 0.82f);
         }
 
         void CancelCurrentAction()
@@ -344,7 +364,7 @@ namespace HongMao
             CancelCurrentAction();
             m_Resources.EndMask();
             m_Time.ForceRestore();
-            if (m_Renderer != null) m_Renderer.color = new Color(0.16f, 0.16f, 0.2f);
+            SetVisualTint(new Color(0.16f, 0.16f, 0.2f));
         }
 
         void OnDisable()

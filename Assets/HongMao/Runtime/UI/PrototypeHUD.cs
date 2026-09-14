@@ -47,6 +47,11 @@ namespace HongMao
         {
             if (m_Player == null || m_Enemy == null || m_Combat == null || m_Resources == null || m_Flow == null) return;
             EnsureStyles();
+            float uiScale = Mathf.Clamp(Mathf.Min(Screen.width / 1280f, Screen.height / 720f), 0.65f, 1f);
+            float viewWidth = Screen.width / uiScale;
+            float viewHeight = Screen.height / uiScale;
+            Matrix4x4 previousMatrix = GUI.matrix;
+            GUI.matrix = Matrix4x4.Scale(new Vector3(uiScale, uiScale, 1f));
             DrawPanel(new Rect(18, 16, 410, 142), new Color(0.04f, 0.05f, 0.07f, 0.82f));
             GUI.Label(new Rect(32, 24, 180, 30), "玩家", m_Title);
             DrawBar(new Rect(32, 60, 240, 18), m_Player.Health / (float)m_Player.MaxHealth, new Color(0.12f, 0.72f, 0.28f));
@@ -60,7 +65,7 @@ namespace HongMao
             string special = m_Resources.IsMaskActive ? $"红脸谱 {m_Resources.MaskRemaining:0.0}s" : (m_Resources.HasEmpoweredAttack ? "强化攻击：就绪" : "强化攻击：无");
             GUI.Label(new Rect(32, 118, 340, 28), special, m_Text);
 
-            float right = Screen.width - 428;
+            float right = viewWidth - 428;
             DrawPanel(new Rect(right, 16, 410, 114), new Color(0.04f, 0.05f, 0.07f, 0.82f));
             GUI.Label(new Rect(right + 14, 24, 220, 30), "CombatBot", m_Title);
             DrawBar(new Rect(right + 14, 60, 280, 16), m_Enemy.Health / (float)m_Enemy.MaxHealth, new Color(0.84f, 0.12f, 0.12f));
@@ -70,15 +75,15 @@ namespace HongMao
 
             if (m_TutorialRemaining > 0f && m_Flow.State == GameFlowState.Running)
             {
-                DrawPanel(new Rect(Screen.width / 2f - 360, Screen.height - 112, 720, 88), new Color(0.02f, 0.025f, 0.04f, 0.8f));
-                GUI.Label(new Rect(Screen.width / 2f - 342, Screen.height - 102, 684, 32), "A/D 移动　Space 跳跃　Shift 闪避　左键攻击　右键招架", m_Text);
-                GUI.Label(new Rect(Screen.width / 2f - 342, Screen.height - 68, 684, 32), "满充能后 Q 吸色　W/空中S＋左键强化攻击　三红槽后 R 脸谱", m_Text);
+                DrawPanel(new Rect(viewWidth / 2f - 360, viewHeight - 112, 720, 88), new Color(0.02f, 0.025f, 0.04f, 0.8f));
+                GUI.Label(new Rect(viewWidth / 2f - 342, viewHeight - 102, 684, 32), "A/D 移动　Space 跳跃　Shift 闪避　左键攻击　右键招架", m_Text);
+                GUI.Label(new Rect(viewWidth / 2f - 342, viewHeight - 68, 684, 32), "满充能后 Q 吸色　W/空中S＋左键强化攻击　三红槽后 R 脸谱", m_Text);
             }
 
             if (m_Combat.IsAbsorbing)
             {
-                GUI.Label(new Rect(0, Screen.height / 2f - 70, Screen.width, 48), "吸色：将鼠标移到红色柱体，左键确认", m_Center);
-                GUI.Label(new Rect(0, Screen.height / 2f - 20, Screen.width, 36), "右键 / Q / Esc 取消（不消耗资源）", m_AbsorbCenter);
+                GUI.Label(new Rect(0, viewHeight / 2f - 70, viewWidth, 48), "吸色：将鼠标移到红色柱体，左键确认", m_Center);
+                GUI.Label(new Rect(0, viewHeight / 2f - 20, viewWidth, 36), "右键 / Q / Esc 取消（不消耗资源）", m_AbsorbCenter);
                 Vector2 mouse = Event.current.mousePosition;
                 GUI.Label(new Rect(mouse.x + 22, mouse.y - 18, 120, 34), "红色", m_Title);
             }
@@ -86,10 +91,11 @@ namespace HongMao
             if (m_Flow.State != GameFlowState.Running)
             {
                 string message = m_Flow.State == GameFlowState.Victory ? "胜利" : "失败";
-                DrawPanel(new Rect(0, 0, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.62f));
-                GUI.Label(new Rect(0, Screen.height / 2f - 80, Screen.width, 70), message, m_Center);
-                GUI.Label(new Rect(0, Screen.height / 2f, Screen.width, 42), "按 Enter 重新开始", m_SmallCenter);
+                DrawPanel(new Rect(0, 0, viewWidth, viewHeight), new Color(0f, 0f, 0f, 0.62f));
+                GUI.Label(new Rect(0, viewHeight / 2f - 80, viewWidth, 70), message, m_Center);
+                GUI.Label(new Rect(0, viewHeight / 2f, viewWidth, 42), "按 Enter 重新开始", m_SmallCenter);
             }
+            GUI.matrix = previousMatrix;
         }
 
         void DrawBar(Rect rect, float value, Color color)

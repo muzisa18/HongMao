@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c8e2da797e84e2a8620c7fa00e03da, type: 3}
+  m_Name: CombatBotConfig
+  m_EditorClassIdentifier: HongMao.Runtime::HongMao.CombatBotDefinition
+  maxHealth: 400
+  maxPoise: 100
+  gravityScale: 2.2
+  moveSpeed: 2.2
+  attackRange: 2.05
+  openingGrace: 2.5
+  parryableTelegraph: 0.7
+  unblockableTelegraph: 0.9
+  attackRecovery: 0.75
+  staggerDuration: 1.5
+  parryableDamage: 15
+  unblockableDamage: 20
+  knockback: {x: 4.5, y: 2.5}
+  hitboxSize: {x: 2.2, y: 1.7}
+  hitboxOffset: {x: 1.1, y: 0.15}

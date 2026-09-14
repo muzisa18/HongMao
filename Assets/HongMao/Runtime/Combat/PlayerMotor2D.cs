@@ -6,15 +6,10 @@ namespace HongMao
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public sealed class PlayerMotor2D : MonoBehaviour
     {
-        const float MoveSpeed = 6f;
-        const float JumpSpeed = 8.4f;
-        const float CoyoteTime = 0.1f;
-        const float JumpBuffer = 0.12f;
-        const float DodgeSpeed = 12f;
-
         Rigidbody2D m_Body;
         Collider2D m_Collider;
         PlayerInputReader m_Input;
+        PlayerDefinition m_Definition;
         float m_CoyoteRemaining;
         float m_JumpBufferRemaining;
         float m_DodgeRemaining;
@@ -29,13 +24,14 @@ namespace HongMao
         public int Facing { get; private set; } = 1;
         public Vector2 Velocity => m_Body == null ? Vector2.zero : m_Body.linearVelocity;
 
-        public void Configure(PlayerInputReader input)
+        public void Configure(PlayerInputReader input, PlayerDefinition definition = null)
         {
             m_Input = input;
+            m_Definition = definition;
             m_Body = GetComponent<Rigidbody2D>();
             m_Collider = GetComponent<Collider2D>();
             m_Body.freezeRotation = true;
-            m_Body.gravityScale = 2.2f;
+            m_Body.gravityScale = Definition.gravityScale;
             m_Body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             m_Body.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
@@ -67,19 +63,19 @@ namespace HongMao
         void Update()
         {
             if (m_Input == null) return;
-            if (m_Input.JumpPressed && m_InputEnabled) m_JumpBufferRemaining = JumpBuffer;
+            if (m_Input.JumpPressed && m_InputEnabled) m_JumpBufferRemaining = Definition.jumpBuffer;
             else m_JumpBufferRemaining -= Time.deltaTime;
 
             if (IsGrounded)
             {
-                m_CoyoteRemaining = CoyoteTime;
+                m_CoyoteRemaining = Definition.coyoteTime;
                 AirDodgeAvailable = true;
             }
             else m_CoyoteRemaining -= Time.deltaTime;
 
             if (m_JumpBufferRemaining > 0f && m_CoyoteRemaining > 0f && !IsDodging)
             {
-                m_Body.linearVelocity = new Vector2(m_Body.linearVelocity.x, JumpSpeed);
+                m_Body.linearVelocity = new Vector2(m_Body.linearVelocity.x, Definition.jumpSpeed);
                 m_JumpBufferRemaining = 0f;
                 m_CoyoteRemaining = 0f;
                 IsGrounded = false;
@@ -94,7 +90,7 @@ namespace HongMao
             if (m_DodgeRemaining > 0f)
             {
                 m_DodgeRemaining -= Time.fixedDeltaTime;
-                m_Body.linearVelocity = new Vector2(m_DodgeDirection * DodgeSpeed, 0f);
+                m_Body.linearVelocity = new Vector2(m_DodgeDirection * Definition.dodgeSpeed, 0f);
                 return;
             }
 
@@ -107,7 +103,18 @@ namespace HongMao
 
             float horizontal = m_InputEnabled ? m_Input.Horizontal : 0f;
             if (Mathf.Abs(horizontal) > 0.05f) Facing = horizontal > 0f ? 1 : -1;
-            m_Body.linearVelocity = new Vector2(horizontal * MoveSpeed, m_Body.linearVelocity.y);
+            m_Body.linearVelocity = new Vector2(horizontal * Definition.moveSpeed, m_Body.linearVelocity.y);
+        }
+
+        PlayerDefinition Definition
+        {
+            get
+            {
+                if (m_Definition != null) return m_Definition;
+                m_Definition = ScriptableObject.CreateInstance<PlayerDefinition>();
+                m_Definition.hideFlags = HideFlags.HideAndDontSave;
+                return m_Definition;
+            }
         }
 
         void UpdateGrounded()

@@ -6,6 +6,24 @@ namespace HongMao
     [DefaultExecutionOrder(-1000)]
     public sealed class PrototypeInstaller : MonoBehaviour
     {
+        [Header("Editable scene references")]
+        [SerializeField] Camera sceneCamera;
+        [SerializeField] PlayerCombatController scenePlayer;
+        [SerializeField] CombatBotController sceneEnemy;
+        [SerializeField] RedColorSource[] sceneColorSources;
+        [SerializeField] AttackDefinition[] attackDefinitions;
+
+        [Header("Editable balance assets")]
+        [SerializeField] PlayerDefinition playerDefinition;
+        [SerializeField] CombatBotDefinition enemyDefinition;
+
+        [Header("Scene systems")]
+        [SerializeField] CombatTimeController timeController;
+        [SerializeField] PrototypeAudio prototypeAudio;
+        [SerializeField] PrototypeFeedback prototypeFeedback;
+        [SerializeField] GameFlowCoordinator gameFlow;
+        [SerializeField] PrototypeHUD prototypeHud;
+
         readonly List<AttackDefinition> m_RuntimeDefinitions = new();
         bool m_Installed;
 
@@ -24,6 +42,12 @@ namespace HongMao
             if (m_Installed) return;
             m_Installed = true;
             Physics2D.gravity = new Vector2(0f, -9.81f);
+
+            if (HasEditableSceneReferences())
+            {
+                InstallEditableScene();
+                return;
+            }
 
             Camera camera = Camera.main;
             if (camera == null)
@@ -60,8 +84,8 @@ namespace HongMao
 
             Resources = new CombatResourceModel();
             List<AttackDefinition> definitions = BuildAttackDefinitions();
-            Player.Configure(Resources, time, audio, feedback, definitions, new[] { source });
-            Enemy.Configure(Player.transform, playerBody, audio, feedback);
+            Player.Configure(Resources, time, audio, feedback, definitions, new[] { source }, playerDefinition);
+            Enemy.Configure(Player.transform, playerBody, audio, feedback, enemyDefinition);
 
             Flow = gameObject.AddComponent<GameFlowCoordinator>();
             Flow.Configure(Player, input, playerBody, Enemy, time, audio);
@@ -69,14 +93,76 @@ namespace HongMao
             hud.Configure(playerBody, Enemy.Body, Player, Resources, Flow);
         }
 
+        public void ConfigureEditableScene(Camera camera, PlayerCombatController player,
+            CombatBotController enemy, RedColorSource[] colorSources, AttackDefinition[] attacks,
+            PlayerDefinition playerConfig, CombatBotDefinition enemyConfig,
+            CombatTimeController time, PrototypeAudio audio, PrototypeFeedback feedback,
+            GameFlowCoordinator flow, PrototypeHUD hud)
+        {
+            sceneCamera = camera;
+            scenePlayer = player;
+            sceneEnemy = enemy;
+            sceneColorSources = colorSources;
+            attackDefinitions = attacks;
+            playerDefinition = playerConfig;
+            enemyDefinition = enemyConfig;
+            timeController = time;
+            prototypeAudio = audio;
+            prototypeFeedback = feedback;
+            gameFlow = flow;
+            prototypeHud = hud;
+        }
+
+        bool HasEditableSceneReferences()
+        {
+            return sceneCamera != null && scenePlayer != null && sceneEnemy != null &&
+                sceneColorSources != null && sceneColorSources.Length > 0 &&
+                timeController != null && prototypeAudio != null && prototypeFeedback != null &&
+                gameFlow != null && prototypeHud != null;
+        }
+
+        void InstallEditableScene()
+        {
+            sceneCamera.orthographic = true;
+            sceneCamera.backgroundColor = new Color(0.055f, 0.06f, 0.075f);
+            prototypeAudio.Configure();
+            prototypeFeedback.Configure(sceneCamera);
+
+            PlayerInputReader input = scenePlayer.GetComponent<PlayerInputReader>();
+            PlayerMotor2D motor = scenePlayer.GetComponent<PlayerMotor2D>();
+            CombatantBody playerBody = scenePlayer.GetComponent<CombatantBody>();
+            CombatantBody enemyBody = sceneEnemy.GetComponent<CombatantBody>();
+            int playerHealth = playerDefinition == null ? 100 : playerDefinition.maxHealth;
+            int playerPoise = playerDefinition == null ? 0 : playerDefinition.maxPoise;
+            int enemyHealth = enemyDefinition == null ? 400 : enemyDefinition.maxHealth;
+            int enemyPoise = enemyDefinition == null ? 100 : enemyDefinition.maxPoise;
+            playerBody.Configure(playerHealth, playerPoise);
+            enemyBody.Configure(enemyHealth, enemyPoise);
+            motor.Configure(input, playerDefinition);
+            for (int i = 0; i < sceneColorSources.Length; i++) sceneColorSources[i].Configure();
+
+            Resources = new CombatResourceModel();
+            List<AttackDefinition> definitions = BuildAttackDefinitions();
+            scenePlayer.Configure(Resources, timeController, prototypeAudio, prototypeFeedback,
+                definitions, sceneColorSources, playerDefinition);
+            sceneEnemy.Configure(scenePlayer.transform, playerBody, prototypeAudio, prototypeFeedback, enemyDefinition);
+            gameFlow.Configure(scenePlayer, input, playerBody, sceneEnemy, timeController, prototypeAudio);
+            prototypeHud.Configure(playerBody, enemyBody, scenePlayer, Resources, gameFlow);
+
+            Player = scenePlayer;
+            Enemy = sceneEnemy;
+            Flow = gameFlow;
+        }
+
         PlayerCombatController CreatePlayer(Transform parent, out CombatantBody body, out PlayerInputReader input)
         {
             GameObject player = CreateDynamicBox("Player", new Vector2(-4.4f, -1.75f), new Vector2(0.9f, 2f), new Color(0.1f, 0.52f, 0.82f), parent);
             body = player.AddComponent<CombatantBody>();
-            body.Configure(100, 0);
+            body.Configure(playerDefinition == null ? 100 : playerDefinition.maxHealth,
+                playerDefinition == null ? 0 : playerDefinition.maxPoise);
             input = player.AddComponent<PlayerInputReader>();
             PlayerMotor2D motor = player.AddComponent<PlayerMotor2D>();
-            motor.Configure(input);
+            motor.Configure(input, playerDefinition);
             return player.AddComponent<PlayerCombatController>();
         }
 
@@ -84,7 +170,8 @@ namespace HongMao
         {
             GameObject enemy = CreateDynamicBox("CombatBot", new Vector2(3.3f, -1.65f), new Vector2(1.15f, 2.2f), new Color(0.24f, 0.28f, 0.34f), parent);
             CombatantBody body = enemy.AddComponent<CombatantBody>();
-            body.Configure(400, 100);
+            body.Configure(enemyDefinition == null ? 400 : enemyDefinition.maxHealth,
+                enemyDefinition == null ? 100 : enemyDefinition.maxPoise);
             return enemy.AddComponent<CombatBotController>();
         }
 
@@ -147,6 +234,8 @@ namespace HongMao
 
         List<AttackDefinition> BuildAttackDefinitions()
         {
+            if (attackDefinitions != null && attackDefinitions.Length > 0)
+                return new List<AttackDefinition>(attackDefinitions);
             AttackDefinition[] persisted = UnityEngine.Resources.LoadAll<AttackDefinition>("Attacks");
             if (persisted.Length >= 11) return new List<AttackDefinition>(persisted);
 

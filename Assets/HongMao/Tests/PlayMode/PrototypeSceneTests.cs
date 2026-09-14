@@ -48,5 +48,27 @@ namespace HongMao.Tests
             Object.Destroy(sourceObject);
             yield return null;
         }
+
+        [UnityTest]
+        public IEnumerator AuthoredCombatScene_LoadsExactlyOnePlayableSet()
+        {
+            Time.timeScale = 1f;
+            AsyncOperation load = SceneManager.LoadSceneAsync("PrototypeCombat", LoadSceneMode.Single);
+            while (!load.isDone) yield return null;
+            yield return null;
+
+            PrototypeInstaller installer = Object.FindFirstObjectByType<PrototypeInstaller>();
+            Assert.That(installer, Is.Not.Null);
+            Assert.That(installer.Player, Is.Not.Null);
+            Assert.That(installer.Enemy, Is.Not.Null);
+            Assert.That(installer.Resources, Is.Not.Null);
+            Assert.That(installer.Flow, Is.Not.Null);
+            Assert.That(Object.FindObjectsByType<PlayerCombatController>(FindObjectsSortMode.None), Has.Length.EqualTo(1));
+            Assert.That(Object.FindObjectsByType<CombatBotController>(FindObjectsSortMode.None), Has.Length.EqualTo(1));
+            Assert.That(GameObject.Find("World"), Is.Not.Null);
+            Assert.That(installer.Player.transform.Find("Visual"), Is.Not.Null);
+            Assert.That(installer.Enemy.transform.Find("Visual"), Is.Not.Null);
+            Assert.That(Time.timeScale, Is.EqualTo(1f).Within(0.001f));
+        }
     }
 }

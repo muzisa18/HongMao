@@ -7,10 +7,22 @@
 - Project root: `/Users/liqiuxuan/Projects/coursework/中国风2D游戏开发/HongMao`
 - Runtime root: `Assets/HongMao/Runtime`
 - Prototype scene: `Assets/HongMao/Scenes/PrototypeCombat.unity`
-- Assemblies: `HongMao.Runtime`, `HongMao.Tests.EditMode`, `HongMao.Tests.PlayMode`
-- Scene composition: `PrototypeInstaller` is the composition root; combat systems use explicit references and no global singleton.
+- Assemblies: `HongMao.Runtime`, `HongMao.Editor`, `HongMao.Tests.EditMode`, `HongMao.Tests.PlayMode`
+- Scene composition: `PrototypeInstaller` wires serialized scene references; the player, enemy, geometry and color sources are authored objects that remain visible outside Play Mode. Combat systems use explicit references and no global singleton.
 - State authority: `CombatResourceModel` owns charge, color slots, empowered attack, and mask duration. `CombatantBody` owns health, poise, invulnerability, and parry resolution. `CombatTimeController` alone writes `Time.timeScale`.
 - Verification: compile in Unity, inspect Console through Unity MCP, run EditMode/PlayMode tests, then perform the documented manual route in Play Mode.
+
+## Editable prototype assets
+
+- Player prefab: `Assets/HongMao/Prefabs/PlayerPrototype.prefab`
+- Enemy prefab: `Assets/HongMao/Prefabs/CombatBotPrototype.prefab`
+- Red source prefab: `Assets/HongMao/Prefabs/RedColorSource.prefab`
+- Player balance: `Assets/HongMao/Configs/PlayerConfig.asset`
+- Enemy balance: `Assets/HongMao/Configs/CombatBotConfig.asset`
+- Attack balance: `Assets/HongMao/Resources/Attacks`
+- Scene hierarchy: `World/Geometry`, `World/Decoration`, `World/Color Sources`, and `World/Actors`
+- Debug gizmos: select `Combat Systems` and edit `Combat Debug Overlay`, including the attack asset shown as the yellow preview box.
+- Scene template command: `HongMao > 重建可编辑战斗测试场景`. This intentionally replaces the current prototype-room layout with the template, so ordinary layout work should be saved directly instead.
 
 ## Prototype controls
 

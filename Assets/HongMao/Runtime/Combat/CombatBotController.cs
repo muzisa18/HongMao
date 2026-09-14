@@ -6,10 +6,6 @@ namespace HongMao
     [RequireComponent(typeof(Rigidbody2D), typeof(CombatantBody), typeof(SpriteRenderer))]
     public sealed class CombatBotController : MonoBehaviour
     {
-        const float MoveSpeed = 2.2f;
-        const float AttackRange = 2.05f;
-        const float StaggerDuration = 1.5f;
-
         Rigidbody2D m_Rigidbody;
         CombatantBody m_Body;
         CombatantBody m_PlayerBody;
@@ -17,6 +13,8 @@ namespace HongMao
         SpriteRenderer m_Renderer;
         PrototypeAudio m_Audio;
         PrototypeFeedback m_Feedback;
+        PrototypeCharacterVisual m_Visual;
+        CombatBotDefinition m_Definition;
         Coroutine m_Action;
         int m_AttackIndex;
         int m_AttackId = 1000;
@@ -26,8 +24,10 @@ namespace HongMao
 
         public CombatantBody Body => m_Body;
         public bool IsStaggered => m_Staggered;
+        public bool IsActing => m_Action != null;
 
-        public void Configure(Transform player, CombatantBody playerBody, PrototypeAudio audio, PrototypeFeedback feedback)
+        public void Configure(Transform player, CombatantBody playerBody, PrototypeAudio audio,
+            PrototypeFeedback feedback, CombatBotDefinition definition = null)
         {
             m_Rigidbody = GetComponent<Rigidbody2D>();
             m_Body = GetComponent<CombatantBody>();
@@ -36,11 +36,14 @@ namespace HongMao
             m_Renderer = GetComponent<SpriteRenderer>();
             m_Audio = audio;
             m_Feedback = feedback;
+            m_Definition = definition;
+            m_Visual = GetComponent<PrototypeCharacterVisual>();
             m_Rigidbody.freezeRotation = true;
-            m_Rigidbody.gravityScale = 2.2f;
+            m_Rigidbody.gravityScale = Definition.gravityScale;
             m_Rigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
             m_Body.PoiseBroken += OnPoiseBroken;
             m_Body.Died += OnDied;
+            m_OpeningGrace = Definition.openingGrace;
         }
 
         public void SetCombatEnabled(bool enabled)
@@ -68,9 +71,9 @@ namespace HongMao
             }
 
             float delta = m_Player.position.x - transform.position.x;
-            if (Mathf.Abs(delta) > AttackRange)
+            if (Mathf.Abs(delta) > Definition.attackRange)
             {
-                m_Rigidbody.linearVelocity = new Vector2(Mathf.Sign(delta) * MoveSpeed, m_Rigidbody.linearVelocity.y);
+                m_Rigidbody.linearVelocity = new Vector2(Mathf.Sign(delta) * Definition.moveSpeed, m_Rigidbody.linearVelocity.y);
             }
             else
             {
@@ -81,8 +84,8 @@ namespace HongMao
 
         IEnumerator AttackRoutine(bool parryable)
         {
-            float telegraph = parryable ? 0.7f : 0.9f;
-            m_Renderer.color = parryable ? new Color(1f, 0.9f, 0.2f) : new Color(1f, 0.32f, 0.03f);
+            float telegraph = parryable ? Definition.parryableTelegraph : Definition.unblockableTelegraph;
+            SetVisualTint(parryable ? new Color(1f, 0.9f, 0.2f) : new Color(1f, 0.32f, 0.03f));
             yield return new WaitForSeconds(telegraph);
 
             if (!m_CombatEnabled || m_Body.IsDead || m_Staggered)
@@ -92,14 +95,19 @@ namespace HongMao
             }
 
             int direction = m_Player.position.x >= transform.position.x ? 1 : -1;
-            Vector2 center = (Vector2)transform.position + new Vector2(direction * 1.1f, 0.15f);
-            Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(2.2f, 1.7f), 0f);
+            Vector2 offset = Definition.hitboxOffset;
+            offset.x *= direction;
+            Vector2 center = (Vector2)transform.position + offset;
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, Definition.hitboxSize, 0f);
             for (int i = 0; i < hits.Length; i++)
             {
                 if (hits[i].TryGetComponent(out CombatantBody target) && target == m_PlayerBody)
                 {
-                    var request = new HitRequest(++m_AttackId, parryable ? 15 : 20, 0,
-                        new Vector2(direction * 4.5f, 2.5f), parryable, false, gameObject);
+                    Vector2 knockback = Definition.knockback;
+                    knockback.x = Mathf.Abs(knockback.x) * direction;
+                    var request = new HitRequest(++m_AttackId,
+                        parryable ? Definition.parryableDamage : Definition.unblockableDamage, 0,
+                        knockback, parryable, false, gameObject);
                     HitResult hit = target.ReceiveHit(request);
                     if (hit.Outcome == HitOutcome.Parried)
                     {
@@ -121,8 +129,8 @@ namespace HongMao
                 }
             }
 
-            m_Renderer.color = new Color(0.24f, 0.28f, 0.34f);
-            yield return new WaitForSeconds(0.75f);
+            ClearVisualTint();
+            yield return new WaitForSeconds(Definition.attackRecovery);
             m_Action = null;
         }
 
@@ -130,7 +138,7 @@ namespace HongMao
         {
             m_Audio.Play(PrototypeSound.PoiseBreak);
             m_Feedback.Pulse(new Color(1f, 0.22f, 0.08f), 0.18f);
-            StartStagger(StaggerDuration, true);
+            StartStagger(Definition.staggerDuration, true);
         }
 
         void StartStagger(float duration, bool recoverPoise)
@@ -143,11 +151,11 @@ namespace HongMao
         {
             m_Staggered = true;
             m_Rigidbody.linearVelocity = new Vector2(0f, m_Rigidbody.linearVelocity.y);
-            m_Renderer.color = new Color(0.5f, 0.5f, 0.55f);
+            SetVisualTint(new Color(0.5f, 0.5f, 0.55f));
             yield return new WaitForSeconds(duration);
             if (recoverPoise) m_Body.RecoverPoise();
             m_Staggered = false;
-            if (!m_Body.IsDead) m_Renderer.color = new Color(0.24f, 0.28f, 0.34f);
+            if (!m_Body.IsDead) ClearVisualTint();
             m_Action = null;
         }
 
@@ -157,7 +165,30 @@ namespace HongMao
             if (m_Action != null) StopCoroutine(m_Action);
             m_Action = null;
             m_Rigidbody.linearVelocity = Vector2.zero;
-            m_Renderer.color = new Color(0.12f, 0.12f, 0.12f);
+            SetVisualTint(new Color(0.12f, 0.12f, 0.12f));
+        }
+
+        CombatBotDefinition Definition
+        {
+            get
+            {
+                if (m_Definition != null) return m_Definition;
+                m_Definition = ScriptableObject.CreateInstance<CombatBotDefinition>();
+                m_Definition.hideFlags = HideFlags.HideAndDontSave;
+                return m_Definition;
+            }
+        }
+
+        void SetVisualTint(Color color)
+        {
+            if (m_Visual != null) m_Visual.SetTint(color);
+            else if (m_Renderer != null) m_Renderer.color = color;
+        }
+
+        void ClearVisualTint()
+        {
+            if (m_Visual != null) m_Visual.ClearTint();
+            else if (m_Renderer != null) m_Renderer.color = new Color(0.24f, 0.28f, 0.34f);
         }
 
         void OnDestroy()
