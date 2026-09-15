@@ -65,7 +65,7 @@ git clone git@github.com:muzisa18/HongMao.git
 - 玩家、敌人与红色源 Prefab：`Assets/HongMao/Prefabs`
 - 自有运行时代码：`Assets/HongMao/Runtime`
 
-字段含义、场景层级、Prefab 修改方式和判定框查看方法见 [Unity 编辑与调参说明](Docs/UNITY_EDITING_GUIDE.md)。多人协作前请阅读 [协作开发说明](CONTRIBUTING.md)。
+字段含义、场景层级、Prefab 修改方式和判定框查看方法见 [Unity 编辑与调参说明](Docs/UNITY_EDITING_GUIDE.md)。Li 与 Ban 开工前必须阅读 [双人协作规则](CONTRIBUTING.md)：禁止直推 `main`，改动先认领、再走 PR 和另一人审核。
 
 ## 核心规则
 
