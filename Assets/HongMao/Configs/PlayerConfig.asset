@@ -23,5 +23,5 @@ MonoBehaviour:
   dodgeDuration: 0.3
   dodgeInvulnerability: 0.18
   dodgeCooldown: 0.45
-  parryWindow: 0.18
+  parryWindow: 0.5
   parryRecovery: 0.3

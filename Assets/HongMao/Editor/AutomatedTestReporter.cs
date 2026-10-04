@@ -15,6 +15,11 @@ namespace HongMao.Editor
 
         static AutomatedTestReporter()
         {
+            EditorApplication.delayCall += Register;
+        }
+
+        static void Register()
+        {
             var reporter = CreateInstance<AutomatedTestReporter>();
             reporter.hideFlags = HideFlags.HideAndDontSave;
             TestRunnerApi.RegisterTestCallback(reporter, 100);

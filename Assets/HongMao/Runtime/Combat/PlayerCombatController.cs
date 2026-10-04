@@ -167,6 +167,7 @@ namespace HongMao
             m_ActionBusy = true;
             m_CanCancelAttack = false;
             m_Motor.SetInputEnabled(false);
+            m_Visual?.PlayAttack(attack.kind, attack.startup, attack.active, attack.recovery);
             if (attack.movementImpulse != 0f)
                 m_Motor.BeginForcedHorizontal(m_Motor.Facing * attack.movementImpulse, attack.startup + attack.active);
 
@@ -344,6 +345,7 @@ namespace HongMao
             m_CanCancelAttack = false;
             m_Body.IsParrying = false;
             m_Body.IsInvulnerable = false;
+            m_Visual?.StopAttackAnimation();
             m_Motor.SetInputEnabled(m_CombatEnabled && !m_IsAbsorbing);
         }
 
@@ -354,6 +356,7 @@ namespace HongMao
             m_CanCancelAttack = false;
             m_Body.IsParrying = false;
             m_Body.IsInvulnerable = false;
+            m_Visual?.StopAttackAnimation();
             m_Motor.SetInputEnabled(m_CombatEnabled && !m_IsAbsorbing);
         }
 

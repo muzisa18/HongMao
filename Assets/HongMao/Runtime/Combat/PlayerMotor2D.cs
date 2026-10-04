@@ -13,6 +13,7 @@ namespace HongMao
         float m_CoyoteRemaining;
         float m_JumpBufferRemaining;
         float m_DodgeRemaining;
+        float m_DodgeDuration;
         float m_DodgeDirection = 1f;
         float m_ForcedHorizontalRemaining;
         float m_ForcedHorizontalVelocity;
@@ -20,6 +21,7 @@ namespace HongMao
 
         public bool IsGrounded { get; private set; }
         public bool IsDodging => m_DodgeRemaining > 0f;
+        public float DodgeProgress => m_DodgeDuration <= 0f ? 0f : Mathf.Clamp01(1f - m_DodgeRemaining / m_DodgeDuration);
         public bool AirDodgeAvailable { get; private set; } = true;
         public int Facing { get; private set; } = 1;
         public Vector2 Velocity => m_Body == null ? Vector2.zero : m_Body.linearVelocity;
@@ -41,7 +43,8 @@ namespace HongMao
         public bool TryBeginDodge(float duration)
         {
             if (IsDodging || (!IsGrounded && !AirDodgeAvailable)) return false;
-            m_DodgeRemaining = duration;
+            m_DodgeDuration = Mathf.Max(0.001f, duration);
+            m_DodgeRemaining = m_DodgeDuration;
             m_DodgeDirection = Mathf.Abs(m_Input.Horizontal) > 0.1f ? Mathf.Sign(m_Input.Horizontal) : Facing;
             if (!IsGrounded) AirDodgeAvailable = false;
             return true;
