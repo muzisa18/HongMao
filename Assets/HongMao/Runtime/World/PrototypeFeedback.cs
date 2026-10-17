@@ -16,7 +16,7 @@ namespace HongMao
         public void Configure(Camera camera)
         {
             m_Camera = camera;
-            m_CameraHome = camera.transform.position;
+            m_CameraHome = camera.transform.localPosition;
             m_White = new Texture2D(1, 1) { name = "RuntimeWhitePixel" };
             m_White.SetPixel(0, 0, Color.white);
             m_White.Apply();
@@ -43,10 +43,10 @@ namespace HongMao
             while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                m_Camera.transform.position = m_CameraHome + (Vector3)(Random.insideUnitCircle * strength);
+                m_Camera.transform.localPosition = m_CameraHome + (Vector3)(Random.insideUnitCircle * strength);
                 yield return null;
             }
-            m_Camera.transform.position = m_CameraHome;
+            m_Camera.transform.localPosition = m_CameraHome;
             m_Shake = null;
         }
 

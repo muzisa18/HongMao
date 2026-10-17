@@ -36,3 +36,11 @@
 - W + left mouse: empowered uppercut
 - Airborne S + left mouse: empowered dive slam
 - Enter: restart after victory or defeat
+
+## Expanded battle test room (2026-10-17)
+
+- `Assets/HongMao/Scenes/BattleTestRoom.unity`: separate 64-unit room with 18 one-way platforms and tutorial environment artwork; original prototype retained.
+- `CombatRoomCamera` follows the player on a parent rig; `PrototypeFeedback` applies shake in camera-local space.
+- Authoring: `CombatRoomAuthoring` builds from the existing scene without regenerating actor prefabs; refuses to overwrite an existing new room.
+- Local Unity 6000.3.23f1 batch tooling available; no callable Unity MCP exposed in this session.
+- Layout and manual test route: `Docs/AI/BattleTestRoomGuide.md`.
