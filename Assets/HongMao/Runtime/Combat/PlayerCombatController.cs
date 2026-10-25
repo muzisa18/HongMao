@@ -73,7 +73,7 @@ namespace HongMao
             if (m_Resources.IsMaskActive && !m_IsMaskActivating) m_Resources.TickMask(Time.deltaTime);
             UpdateMaskVisual();
 
-            if (!m_CombatEnabled || m_Body.IsDead) return;
+            if (!m_CombatEnabled || m_Body.IsDead || m_Input.GameplayBlocked) return;
 
             if (m_IsAbsorbing)
             {

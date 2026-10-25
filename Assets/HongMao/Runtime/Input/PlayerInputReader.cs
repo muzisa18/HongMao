@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 namespace HongMao
 {
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(-200)]
     public sealed class PlayerInputReader : MonoBehaviour
     {
         public float Horizontal { get; private set; }
@@ -16,6 +17,15 @@ namespace HongMao
         public bool MaskPressed { get; private set; }
         public bool CancelPressed { get; private set; }
         public bool RestartPressed { get; private set; }
+        public bool InteractPressed { get; private set; }
+        public bool GameplayBlocked { get; private set; }
+
+        public void SetGameplayBlocked(bool blocked)
+        {
+            GameplayBlocked = blocked;
+            // Also consume gameplay buttons on the closing frame.
+            ClearGameplayButtons();
+        }
 
         void Update()
         {
@@ -23,7 +33,8 @@ namespace HongMao
             var mouse = Mouse.current;
             if (keyboard == null)
             {
-                ClearFrameButtons();
+                ClearGameplayButtons();
+                CancelPressed = RestartPressed = InteractPressed = false;
                 return;
             }
 
@@ -37,14 +48,16 @@ namespace HongMao
             RestartPressed = keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame;
             AttackPressed = mouse != null && mouse.leftButton.wasPressedThisFrame;
             ParryPressed = mouse != null && mouse.rightButton.wasPressedThisFrame;
+            InteractPressed = keyboard.eKey.wasPressedThisFrame;
+            if (GameplayBlocked) ClearGameplayButtons();
         }
 
-        void ClearFrameButtons()
+        void ClearGameplayButtons()
         {
             Horizontal = 0f;
             Vertical = 0f;
             JumpPressed = AttackPressed = ParryPressed = DodgePressed = false;
-            AbsorbPressed = MaskPressed = CancelPressed = RestartPressed = false;
+            AbsorbPressed = MaskPressed = false;
         }
     }
 }

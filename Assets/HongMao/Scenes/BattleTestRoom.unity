@@ -2633,6 +2633,79 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1001 &165538875
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2079782517}
+    m_Modifications:
+    - target: {fileID: 826802833797814536, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_Name
+      value: TutorialGuide
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+--- !u!4 &165538876 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1146477178082353123, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+  m_PrefabInstance: {fileID: 165538875}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &165538877 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1058264284585192262, guid: a4cda61f957d64aa7ba75ede6ab2cf91, type: 3}
+  m_PrefabInstance: {fileID: 165538875}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e4edb50942b4279bf5565042c89095, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: HongMao.Runtime::HongMao.DialogueNpc
 --- !u!1 &175955888
 GameObject:
   m_ObjectHideFlags: 0
@@ -8636,6 +8709,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b7bb05b89ca840ec82159595419dc3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HongMao.Runtime::HongMao.PrototypeHUD
+  dialogue: {fileID: 1029672773}
 --- !u!114 &648872950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13412,6 +13486,69 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1029672771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1029672774}
+  - component: {fileID: 1029672773}
+  - component: {fileID: 1029672772}
+  m_Layer: 0
+  m_Name: Dialogue Systems
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1029672772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029672771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f077cba7f7dbd42cb86d17932fbb5fb1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: HongMao.Runtime::HongMao.DialogueView
+  dialogue: {fileID: 1029672773}
+  sceneCamera: {fileID: 1800027957}
+--- !u!114 &1029672773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029672771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51b288ad62c8b41669b39ebb7a1b384c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: HongMao.Runtime::HongMao.DialogueController
+  npc: {fileID: 165538877}
+  player: {fileID: 296935771}
+  timeController: {fileID: 648872953}
+  flow: {fileID: 648872950}
+--- !u!4 &1029672774
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029672771}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1030362660
 GameObject:
   m_ObjectHideFlags: 0
@@ -28877,6 +29014,7 @@ Transform:
   m_Children:
   - {fileID: 296935770}
   - {fileID: 1785809836}
+  - {fileID: 165538876}
   m_Father: {fileID: 781346120}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2087131583
@@ -29726,3 +29864,4 @@ SceneRoots:
   - {fileID: 781346120}
   - {fileID: 648872955}
   - {fileID: 361567761}
+  - {fileID: 1029672774}

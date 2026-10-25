@@ -4,6 +4,7 @@ namespace HongMao
 {
     public sealed class PrototypeHUD : MonoBehaviour
     {
+        [SerializeField] DialogueController dialogue;
         CombatantBody m_Player;
         CombatantBody m_Enemy;
         PlayerCombatController m_Combat;
@@ -16,6 +17,8 @@ namespace HongMao
         GUIStyle m_AbsorbCenter;
         Texture2D m_White;
         float m_TutorialRemaining = 12f;
+
+        public void ConfigureDialogue(DialogueController controller) => dialogue = controller;
 
         public void Configure(CombatantBody player, CombatantBody enemy, PlayerCombatController combat,
             CombatResourceModel resources, GameFlowCoordinator flow)
@@ -73,12 +76,15 @@ namespace HongMao
             DrawBar(new Rect(right + 14, 91, 280, 12), m_Enemy.MaxPoise <= 0 ? 0f : m_Enemy.Poise / (float)m_Enemy.MaxPoise, new Color(0.95f, 0.65f, 0.1f));
             GUI.Label(new Rect(right + 306, 80, 90, 28), m_Enemy.IsPoiseBroken ? "已破霸体" : $"霸体 {m_Enemy.Poise}", m_Text);
 
-            if (m_TutorialRemaining > 0f && m_Flow.State == GameFlowState.Running)
+            if (m_TutorialRemaining > 0f && m_Flow.State == GameFlowState.Running && (dialogue == null || !dialogue.IsOpen))
             {
                 DrawPanel(new Rect(viewWidth / 2f - 360, viewHeight - 112, 720, 88), new Color(0.02f, 0.025f, 0.04f, 0.8f));
                 GUI.Label(new Rect(viewWidth / 2f - 342, viewHeight - 102, 684, 32), "A/D 移动　Space 跳跃　Shift 闪避　左键攻击　右键招架", m_Text);
                 GUI.Label(new Rect(viewWidth / 2f - 342, viewHeight - 68, 684, 32), "满充能后 Q 吸色　W/空中S＋左键强化攻击　三红槽后 R 脸谱", m_Text);
             }
+
+            if (dialogue != null && !dialogue.IsOpen && m_Flow.State == GameFlowState.Running)
+                GUI.Label(new Rect(viewWidth / 2f - 240, 170, 480, 30), "新手引导：右侧最高台阶 · 靠近后按 E", m_Text);
 
             if (m_Combat.IsAbsorbing)
             {
