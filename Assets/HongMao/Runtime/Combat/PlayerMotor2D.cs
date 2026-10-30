@@ -66,6 +66,11 @@ namespace HongMao
         void Update()
         {
             if (m_Input == null) return;
+            if (m_Input.GameplayBlocked)
+            {
+                m_JumpBufferRemaining = 0f;
+                return;
+            }
             if (m_Input.JumpPressed && m_InputEnabled) m_JumpBufferRemaining = Definition.jumpBuffer;
             else m_JumpBufferRemaining -= Time.deltaTime;
 

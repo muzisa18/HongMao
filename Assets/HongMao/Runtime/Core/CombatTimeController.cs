@@ -9,8 +9,16 @@ namespace HongMao
         const float AbsorbScale = 0.1f;
         Coroutine m_HitStopRoutine;
         bool m_AbsorbActive;
+        bool m_DialoguePaused;
 
         public bool IsAbsorbActive => m_AbsorbActive;
+        public bool IsDialoguePaused => m_DialoguePaused;
+
+        public void SetDialoguePaused(bool paused)
+        {
+            m_DialoguePaused = paused;
+            ApplyScale();
+        }
 
         public void EnterAbsorb()
         {
@@ -41,7 +49,7 @@ namespace HongMao
 
         void ApplyScale()
         {
-            Time.timeScale = m_AbsorbActive ? AbsorbScale : 1f;
+            Time.timeScale = m_DialoguePaused || m_HitStopRoutine != null ? 0f : (m_AbsorbActive ? AbsorbScale : 1f);
             Time.fixedDeltaTime = (1f / 60f) * Mathf.Max(Time.timeScale, 0.01f);
         }
 
@@ -50,6 +58,7 @@ namespace HongMao
             if (m_HitStopRoutine != null) StopCoroutine(m_HitStopRoutine);
             m_HitStopRoutine = null;
             m_AbsorbActive = false;
+            m_DialoguePaused = false;
             Time.timeScale = 1f;
             Time.fixedDeltaTime = 1f / 60f;
             Cursor.visible = true;

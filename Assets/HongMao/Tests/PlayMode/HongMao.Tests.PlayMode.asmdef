@@ -2,7 +2,8 @@
   "name": "HongMao.Tests.PlayMode",
   "rootNamespace": "HongMao.Tests",
   "references": [
-    "HongMao.Runtime"
+    "HongMao.Runtime",
+    "Unity.InputSystem"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

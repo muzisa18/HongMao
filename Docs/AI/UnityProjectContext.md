@@ -44,3 +44,13 @@
 - Authoring: `CombatRoomAuthoring` builds from the existing scene without regenerating actor prefabs; refuses to overwrite an existing new room.
 - Local Unity 6000.3.23f1 batch tooling available; no callable Unity MCP exposed in this session.
 - Layout and manual test route: `Docs/AI/BattleTestRoomGuide.md`.
+
+## Placeholder NPC dialogue (2026-10-25)
+
+- `BattleTestRoom` now includes `World/Actors/TutorialGuide` on East Step 7 and `Dialogue Systems` with explicit serialized references.
+- `DialogueDefinition` stores speaker name and ordered pages; edit `Configs/TutorialDialogue.asset` for the nine-page beginner guide. No story branching, quests or persistence yet.
+- `DialogueController` owns the session; `DialogueView` uses the existing IMGUI/CJK font approach. `DialogueNpc` owns the non-colliding tutorial robot visual and interaction range.
+- Input order: `PlayerInputReader` (-200), dialogue (-100), combat/movement (0). E starts/advances, Esc closes; gameplay buttons are consumed while reading and on the closing frame.
+- `CombatTimeController` remains the sole runtime owner of time scale and now combines dialogue pause with hit-stop/absorb. Dialogue never re-enables combat after victory/defeat.
+- Setup, editing and smoke route: `Docs/AI/DialogueGuide.md`. PlayMode coverage: `DialogueTests`.
+- Repository baseline inspected: `26ee22e`; Unity 6000.3.23f1 batch tooling available. No callable Unity MCP in this session. Runtime/test assemblies otherwise unchanged, except PlayMode tests also reference the existing Input System assembly for simulated keyboard/mouse input.
