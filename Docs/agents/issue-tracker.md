@@ -1,15 +1,9 @@
-# Issue tracker: GitHub
+# GitHub collaboration
 
-Issues and feature specs for this repository live in GitHub Issues.
-Use the `gh` CLI from inside this repository.
+The Issue authorization and PR workflow rules live in the root `AGENTS.md` under “Issues and pull requests”. Apply that policy before any GitHub write, including writes requested by generic skills.
 
-- Create: `gh issue create --title "..." --body "..."`
-- Read: `gh issue view <number> --comments`
-- List: `gh issue list --state open`
-- Comment: `gh issue comment <number> --body "..."`
-- Close: `gh issue close <number> --comment "..."`
+Routine implementation, validation, task claiming, and skill use do not authorize creating or modifying Issues. Keep working notes local, then include the relevant changes and evidence in the PR when publication is requested.
 
-Pull requests are not treated as feature requests during triage.
+If a skill asks to “publish to the issue tracker”, prepare the material locally and apply the user-authorized PR workflow. Reading an existing Issue is allowed with `gh issue view <number> --comments`.
 
-When a skill says "publish to the issue tracker", create a GitHub Issue.
-When it says "fetch the relevant ticket", run `gh issue view <number> --comments`.
+Issue decisions belong to Li and Ban's meetings. The agent performs an Issue write only when the user explicitly requests that specific action.

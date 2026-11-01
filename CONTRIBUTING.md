@@ -23,7 +23,7 @@
 
 Unity 的 `.unity`、`.prefab` 和 `.asset` 都可能包含大量序列化内容。冲突最严重的不是代码目录，而是两个人同时保存同一场景、Prefab 或配置资产。
 
-开始工作前，在 GitHub Issue 或两人的固定沟通渠道中发送：
+开始工作前，由 Li 和 Ban 在会上或两人的固定沟通渠道中确认任务与相关文件的认领：
 
 ```text
 [认领] Li/Ban
@@ -45,6 +45,8 @@ Unity 的 `.unity`、`.prefab` 和 `.asset` 都可能包含大量序列化内容
 | `ProjectSettings`、`Packages` | 默认由 Li 维护；Unity 或包版本升级必须单独 PR 并由 Ban 验证 |
 
 任务结束、PR 已创建或工作暂停时，要明确解除认领。认领是避免冲突，不代表永久划分所有权。
+
+GitHub Issue 由 Li 和 Ban 在会上确认。代理仅在用户明确要求具体 Issue 操作时执行；开发、测试和认领任务都不授权代理自动创建 Issue 或发布认领／进度评论。会后需要发布的代码、资源和会议纪要通过 PR 提交，由另一人审核后决定合并或关闭。
 
 ### 3. Commit 信息统一
 
@@ -116,9 +118,9 @@ git switch -c li/feat-player-animation
 
 `.unity` 和 `.prefab` 虽然是文本文件，但文件 ID 与对象引用很容易在手工合并时损坏。不要直接选择“全部接受当前”或“全部接受传入”。先让当前认领者完成并提交，另一人更新分支后在 Unity 中重新应用自己的少量修改。合并后必须逐项检查 Hierarchy、Prefab Overrides、Inspector 引用和 Play Mode。
 
-## Issue 内容要求
+## 问题记录与 Issue 确认
 
-报告问题时写明：
+问题先在本地说明、会议记录或 PR 中记录；是否创建 Issue 由 Li 和 Ban 在会上确认。记录时写明：
 
 - 负责人：Li 或 Ban。
 - Unity 与系统版本。
