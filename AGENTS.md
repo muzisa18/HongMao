@@ -6,6 +6,10 @@ Li and Ban decide Issues during their meetings. Agents may read existing Issues,
 
 When the user asks to publish work, push a feature branch and create or update a ready-for-review PR. Li and Ban decide whether to merge or close it. See `Docs/agents/issue-tracker.md`.
 
+### Meeting records
+
+Use the persistent `li/docs-meetings` branch for meeting-record PRs and keep it after merging. Reuse a dedicated checkout and preserve meeting files in the authoring project. Do not create branches per meeting date. Follow `Docs/agents/meeting-records.md` to synchronize main and create or update the PR.
+
 ### Domain docs
 
 HongMao uses a single project context: `CONTEXT.md` and `Docs/adr/`. See `Docs/agents/domain.md`.
