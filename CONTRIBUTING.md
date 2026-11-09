@@ -128,3 +128,7 @@ git switch -c li/feat-player-animation
 - 预期结果和实际结果。
 - Console 完整错误及截图。
 - 涉及的 Scene、Prefab、Config 或 AttackDefinition。
+
+## 美术实装固定分支
+
+班提供原创图片与原稿，Li 在 Unity 中导入并保存 `.meta`、切片配置和资源 GUID，随 Prefab、脚本及测试一起提交。美术实装固定复用 `li/art-integration`，合并 PR 后保留该长期分支。具体步骤见 [美术实装提交流程](Docs/agents/art-integration.md)。
