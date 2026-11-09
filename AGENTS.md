@@ -8,7 +8,7 @@ When the user asks to publish work, push a feature branch and create or update a
 
 ### Meeting records
 
-Use the persistent `li/docs-meetings` branch for meeting-record PRs and keep it after merging. Reuse a dedicated checkout and preserve meeting files in the authoring project. Do not create branches per meeting date. Follow `Docs/agents/meeting-records.md` to synchronize main and create or update the PR.
+Use the persistent `li/docs-meetings` branch for meeting-record PRs and keep it after merging. Work in the same Unity project directory: inspect and preserve unrelated staged, unstaged, and untracked changes before switching branches. Do not create a separate meeting worktree or branches per meeting date unless the user explicitly requests it. Follow `Docs/agents/meeting-records.md` to synchronize main and create or update the PR.
 
 ### Domain docs
 
