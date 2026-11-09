@@ -15,6 +15,18 @@ namespace HongMao
         [SerializeField] Sprite[] groundThreeFrames;
         [SerializeField] Sprite[] runFrames;
         [SerializeField] Sprite[] groundDodgeFrames;
+        [SerializeField] Sprite[] idleFrames;
+        [SerializeField] Sprite[] leftRunFrames;
+        [SerializeField] Sprite[] rightRunFrames;
+        [SerializeField, Min(0.01f)] float locomotionFramesPerSecond = 10f;
+        [SerializeField] Sprite[] leftJumpFrames;
+        [SerializeField] Sprite[] rightJumpFrames;
+        [SerializeField] Sprite[] leftFallFrames;
+        [SerializeField] Sprite[] rightFallFrames;
+        [SerializeField] Sprite[] redMaskIdleFrames;
+        [SerializeField, Min(0.01f)] float airborneFramesPerSecond = 10f;
+
+        enum AirbornePose { None, Rising, Falling }
 
         Rigidbody2D m_Body;
         PlayerMotor2D m_PlayerMotor;
@@ -29,11 +41,23 @@ namespace HongMao
         float m_AttackActive;
         float m_AttackRecovery;
         float m_RunElapsed;
+        float m_IdleElapsed;
+        float m_AirborneElapsed;
+        AirbornePose m_AirbornePose;
+        Sprite[] m_ActiveIdleFrames;
         Sprite[] m_ActiveAttackFrames;
         bool m_IsPlayingGroundAttack;
         bool m_IsShowingGroundDodge;
         bool m_IsShowingRun;
+        bool m_IsShowingIdle;
         int m_LastFacing = 1;
+
+        bool IsRedMaskActive => m_PlayerCombat != null && m_PlayerCombat.Resources != null
+            && m_PlayerCombat.Resources.IsMaskActive;
+
+        public bool UsesAuthoredMaskPalette => IsRedMaskActive && redMaskIdleFrames != null
+            && redMaskIdleFrames.Length > 0 && CanShowLocomotion() && m_Body != null
+            && Mathf.Abs(m_Body.linearVelocity.x) <= 0.1f;
 
         public void Configure(Transform root, Transform headTransform, Transform weaponTransform,
             SpriteRenderer[] renderers)
@@ -53,6 +77,13 @@ namespace HongMao
             groundTwoFrames = secondAttackFrames;
             groundThreeFrames = thirdAttackFrames;
             runFrames = runningFrames;
+            ConfigureAnimatedRenderer(renderer);
+            ShowIdleSprite();
+        }
+
+        public void ConfigureAnimatedRenderer(SpriteRenderer renderer)
+        {
+            animatedRenderer = renderer;
             bool containsRenderer = false;
             if (tintedParts != null)
             {
@@ -70,11 +101,45 @@ namespace HongMao
             }
 
             CacheAuthoringPose();
+        }
+
+        public void ConfigureLocomotionSprites(Sprite[] standingFrames, Sprite[] leftMovingFrames,
+            Sprite[] rightMovingFrames, float framesPerSecond)
+        {
+            idleFrames = standingFrames;
+            leftRunFrames = leftMovingFrames;
+            rightRunFrames = rightMovingFrames;
+            locomotionFramesPerSecond = Mathf.Max(0.01f, framesPerSecond);
+            m_IdleElapsed = 0f;
+            m_RunElapsed = 0f;
+            m_IsShowingIdle = false;
+            m_IsShowingRun = false;
+            ShowIdleSprite();
+        }
+
+        public void ConfigureAirborneSprites(Sprite[] leftJumpingFrames, Sprite[] rightJumpingFrames,
+            Sprite[] leftFallingFrames, Sprite[] rightFallingFrames, float framesPerSecond)
+        {
+            leftJumpFrames = leftJumpingFrames;
+            rightJumpFrames = rightJumpingFrames;
+            leftFallFrames = leftFallingFrames;
+            rightFallFrames = rightFallingFrames;
+            airborneFramesPerSecond = Mathf.Max(0.01f, framesPerSecond);
+            m_AirbornePose = AirbornePose.None;
+            m_AirborneElapsed = 0f;
+        }
+
+        public void ConfigureRedMaskIdleSprites(Sprite[] standingFrames)
+        {
+            redMaskIdleFrames = standingFrames;
+            m_ActiveIdleFrames = null;
             ShowIdleSprite();
         }
 
         public void PlayAttack(AttackKind kind, float startup, float active, float recovery)
         {
+            m_AirbornePose = AirbornePose.None;
+            m_AirborneElapsed = 0f;
             Sprite[] frames = GetAttackFrames(kind);
             if (animatedRenderer == null || frames == null || frames.Length < 6)
             {
@@ -180,6 +245,7 @@ namespace HongMao
         {
             if (!m_IsPlayingGroundAttack)
             {
+                if (UpdateAirborneAnimation()) return;
                 UpdateRunAnimation();
                 return;
             }
@@ -228,31 +294,127 @@ namespace HongMao
             return true;
         }
 
+        bool UpdateAirborneAnimation()
+        {
+            bool canShow = animatedRenderer != null && m_PlayerMotor != null && !m_PlayerMotor.IsGrounded
+                && !m_PlayerMotor.IsDodging && (m_PlayerCombat == null || !m_PlayerCombat.IsActionBusy);
+            if (!canShow)
+            {
+                m_AirbornePose = AirbornePose.None;
+                m_AirborneElapsed = 0f;
+                return false;
+            }
+
+            bool rising = m_Body.linearVelocity.y > 0f;
+            AirbornePose pose = rising ? AirbornePose.Rising : AirbornePose.Falling;
+            Sprite[] frames = SelectDirectionalFrames(rising ? leftJumpFrames : leftFallFrames,
+                rising ? rightJumpFrames : rightFallFrames, out bool authoredFacingLeft);
+            if (frames == null || frames.Length == 0) return false;
+
+            if (pose != m_AirbornePose)
+            {
+                m_AirbornePose = pose;
+                m_AirborneElapsed = 0f;
+            }
+
+            m_IsShowingRun = false;
+            m_IsShowingIdle = false;
+            m_RunElapsed = 0f;
+            m_IdleElapsed = 0f;
+            float fps = Mathf.Max(0.01f, airborneFramesPerSecond);
+            int frame = Mathf.Min(frames.Length - 1, Mathf.FloorToInt(m_AirborneElapsed * fps));
+            SetSprite(frames, frame);
+            animatedRenderer.flipX = authoredFacingLeft;
+            // Keep the source's leg extension: all airborne frames share one body reference pivot.
+            m_AirborneElapsed = rising
+                ? Mathf.Min(m_AirborneElapsed + Time.deltaTime, frames.Length / fps)
+                : Mathf.Repeat(m_AirborneElapsed + Time.deltaTime, frames.Length / fps);
+            return true;
+        }
+
+        Sprite[] SelectDirectionalFrames(Sprite[] leftFrames, Sprite[] rightFrames, out bool authoredFacingLeft)
+        {
+            authoredFacingLeft = m_LastFacing < 0;
+            Sprite[] frames = authoredFacingLeft ? leftFrames : rightFrames;
+            if (frames != null && frames.Length > 0) return frames;
+            // A single available original direction can still be mirrored without reverting to a placeholder.
+            authoredFacingLeft = !authoredFacingLeft;
+            return authoredFacingLeft ? leftFrames : rightFrames;
+        }
+
+        Sprite[] GetIdleFrames()
+        {
+            return IsRedMaskActive && redMaskIdleFrames != null && redMaskIdleFrames.Length > 0
+                ? redMaskIdleFrames : idleFrames;
+        }
+
         void UpdateRunAnimation()
         {
-            bool canRun = animatedRenderer != null && runFrames != null && runFrames.Length >= 6
-                && m_PlayerMotor != null && m_PlayerMotor.IsGrounded && !m_PlayerMotor.IsDodging
-                && (m_PlayerCombat == null || !m_PlayerCombat.IsActionBusy)
+            Sprite[] directionalFrames = SelectDirectionalFrames(leftRunFrames, rightRunFrames,
+                out bool authoredFacingLeft);
+            bool useDirectionalFrames = directionalFrames != null && directionalFrames.Length > 0;
+            Sprite[] movingFrames = useDirectionalFrames ? directionalFrames : runFrames;
+            bool canRun = animatedRenderer != null && movingFrames != null && movingFrames.Length > 0
+                && CanShowLocomotion()
                 && Mathf.Abs(m_Body.linearVelocity.x) > 0.1f;
 
             if (!canRun)
             {
-                if (!m_IsShowingRun) return;
+                bool wasMoving = m_IsShowingRun;
                 m_IsShowingRun = false;
                 m_RunElapsed = 0f;
-                ShowIdleSprite();
+
+                Sprite[] standingFrames = GetIdleFrames();
+                if (CanShowLocomotion() && standingFrames != null && standingFrames.Length > 0)
+                {
+                    if (m_ActiveIdleFrames != standingFrames)
+                    {
+                        m_ActiveIdleFrames = standingFrames;
+                        m_IdleElapsed = 0f;
+                    }
+                    m_IsShowingIdle = true;
+                    float duration = standingFrames.Length / Mathf.Max(0.01f, locomotionFramesPerSecond);
+                    int idleFrame = Mathf.FloorToInt(m_IdleElapsed * locomotionFramesPerSecond);
+                    SetSprite(standingFrames, idleFrame);
+                    m_IdleElapsed = Mathf.Repeat(m_IdleElapsed + Time.deltaTime, duration);
+                    return;
+                }
+
+                if (wasMoving || m_IsShowingIdle || (idleFrames != null && idleFrames.Length > 0))
+                {
+                    m_IsShowingIdle = false;
+                    m_IdleElapsed = 0f;
+                    // Actions without authored replacements keep the existing placeholder.
+                    SetSprite(groundOneFrames, 0);
+                }
                 return;
             }
 
+            m_IsShowingIdle = false;
+            m_IdleElapsed = 0f;
             m_IsShowingRun = true;
-            m_RunElapsed = Mathf.Repeat(m_RunElapsed + Time.deltaTime, 0.5f);
-            int frame = Mathf.FloorToInt(m_RunElapsed * 12f) % runFrames.Length;
-            SetSprite(runFrames, frame);
+            float fps = useDirectionalFrames ? Mathf.Max(0.01f, locomotionFramesPerSecond) : 12f;
+            int frame = Mathf.FloorToInt(m_RunElapsed * fps);
+            SetSprite(movingFrames, frame);
+            // Cancel the parent's mirror for a native-left original, including a mirrored fallback.
+            if (animatedRenderer != null) animatedRenderer.flipX = useDirectionalFrames && authoredFacingLeft;
+            m_RunElapsed = Mathf.Repeat(m_RunElapsed + Time.deltaTime, movingFrames.Length / fps);
+        }
+
+        bool CanShowLocomotion()
+        {
+            return m_PlayerMotor != null && m_PlayerMotor.IsGrounded && !m_PlayerMotor.IsDodging
+                && (m_PlayerCombat == null || !m_PlayerCombat.IsActionBusy);
         }
 
         void ShowIdleSprite()
         {
-            SetSprite(groundOneFrames, 0);
+            m_IdleElapsed = 0f;
+            Sprite[] standingFrames = GetIdleFrames();
+            bool useOriginalIdle = standingFrames != null && standingFrames.Length > 0
+                && (m_PlayerMotor == null || CanShowLocomotion());
+            m_ActiveIdleFrames = useOriginalIdle ? standingFrames : null;
+            SetSprite(useOriginalIdle ? standingFrames : groundOneFrames, 0);
         }
 
         void SetAnimatedFrame(int index)
@@ -263,7 +425,10 @@ namespace HongMao
         void SetSprite(Sprite[] frames, int index)
         {
             if (animatedRenderer == null || frames == null || frames.Length == 0) return;
+            animatedRenderer.flipX = false;
             animatedRenderer.sprite = frames[Mathf.Clamp(index, 0, frames.Length - 1)];
+            if (frames == redMaskIdleFrames && UsesAuthoredMaskPalette)
+                animatedRenderer.color = Color.white;
         }
 
         void OnValidate()

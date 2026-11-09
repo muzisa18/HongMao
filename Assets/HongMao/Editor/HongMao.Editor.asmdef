@@ -3,6 +3,7 @@
   "rootNamespace": "HongMao.Editor",
   "references": [
     "HongMao.Runtime",
+    "Unity.2D.Sprite.Editor",
     "UnityEditor.TestRunner",
     "UnityEngine.TestRunner"
   ],

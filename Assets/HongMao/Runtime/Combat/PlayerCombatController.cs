@@ -71,7 +71,6 @@ namespace HongMao
             if (m_Resources == null || m_Input == null) return;
             m_DodgeCooldownRemaining = Mathf.Max(0f, m_DodgeCooldownRemaining - Time.deltaTime);
             if (m_Resources.IsMaskActive && !m_IsMaskActivating) m_Resources.TickMask(Time.deltaTime);
-            UpdateMaskVisual();
 
             if (!m_CombatEnabled || m_Body.IsDead || m_Input.GameplayBlocked) return;
 
@@ -104,6 +103,12 @@ namespace HongMao
                 }
                 StartSelectedAttack();
             }
+        }
+
+        void LateUpdate()
+        {
+            // Apply the palette after this frame's input and action transitions have selected a pose.
+            if (m_Resources != null) UpdateMaskVisual();
         }
 
         bool TryStartDefense()
@@ -308,7 +313,12 @@ namespace HongMao
         void UpdateMaskVisual()
         {
             if (m_Resources != null && m_Resources.IsMaskActive)
-                SetVisualTint(Color.Lerp(new Color(0.72f, 0.02f, 0.02f), new Color(1f, 0.35f, 0.08f), Mathf.PingPong(Time.unscaledTime * 2f, 1f)));
+            {
+                if (m_Visual != null && m_Visual.UsesAuthoredMaskPalette)
+                    ClearVisualTint();
+                else
+                    SetVisualTint(Color.Lerp(new Color(0.72f, 0.02f, 0.02f), new Color(1f, 0.35f, 0.08f), Mathf.PingPong(Time.unscaledTime * 2f, 1f)));
+            }
             else if (!m_ActionBusy || (!m_Body.IsParrying && !m_Body.IsDead))
                 ClearVisualTint();
         }

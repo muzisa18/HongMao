@@ -1,26 +1,48 @@
 using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.U2D.Sprites;
 using UnityEngine;
 
 namespace HongMao.Editor
 {
     public static class PlayerSpritePrototypeAuthoring
     {
-        const string GroundOneSheetPath = "Assets/HongMao/Art/Characters/Player/PlayerGroundOneSheet.png";
-        const string GroundTwoSheetPath = "Assets/HongMao/Art/Characters/Player/PlayerGroundTwoSheet.png";
-        const string GroundThreeSheetPath = "Assets/HongMao/Art/Characters/Player/PlayerGroundThreeSheet.png";
-        const string RunSheetPath = "Assets/HongMao/Art/Characters/Player/PlayerRunSheet.png";
+        const string OriginalArtPath = "Assets/HongMao/Art/鸿毛精灵图/";
+        const string IdleSheetPath = OriginalArtPath + "MA01_待機.png";
+        const string LeftRunSheetPath = OriginalArtPath + "MA01_左移動.png";
+        const string RightRunSheetPath = OriginalArtPath + "MA01_右移動 .png";
+        const string LeftJumpSheetPath = OriginalArtPath + "MA01_左跳躍.png";
+        const string RightJumpSheetPath = OriginalArtPath + "MA01_右跳躍.png";
+        const string LeftFallSheetPath = OriginalArtPath + "MA01_左下落.png";
+        const string RightFallSheetPath = OriginalArtPath + "MA01_右下落.png";
+        const string RedMaskIdleSheetPath = OriginalArtPath + "关羽脸谱_待機.png";
+        const int OriginalCellSize = 64;
+        const float OriginalPixelsPerUnit = 30f;
+        const float OriginalFramesPerSecond = 10f;
         const string PlayerPrefabPath = "Assets/HongMao/Prefabs/PlayerPrototype.prefab";
         const string SpriteObjectName = "Sprite Animation";
 
         [MenuItem("HongMao/美术/应用玩家角色精灵")]
         public static void Apply()
         {
-            Sprite[] groundOneFrames = LoadFrames(GroundOneSheetPath);
-            Sprite[] groundTwoFrames = LoadFrames(GroundTwoSheetPath);
-            Sprite[] groundThreeFrames = LoadFrames(GroundThreeSheetPath);
-            Sprite[] runFrames = LoadFrames(RunSheetPath);
+            ImportOriginalSheet(IdleSheetPath, 8, 56);
+            ImportOriginalSheet(LeftRunSheetPath, 10, 55);
+            ImportOriginalSheet(RightRunSheetPath, 10, 55);
+            ImportOriginalSheet(LeftJumpSheetPath, 3, 55);
+            ImportOriginalSheet(RightJumpSheetPath, 3, 55);
+            ImportOriginalSheet(LeftFallSheetPath, 3, 55);
+            ImportOriginalSheet(RightFallSheetPath, 3, 55);
+            ImportOriginalSheet(RedMaskIdleSheetPath, 8, 61);
+            Sprite[] idleFrames = LoadFrames(IdleSheetPath, 8);
+            Sprite[] leftRunFrames = LoadFrames(LeftRunSheetPath, 10);
+            Sprite[] rightRunFrames = LoadFrames(RightRunSheetPath, 10);
+            Sprite[] leftJumpFrames = LoadFrames(LeftJumpSheetPath, 3);
+            Sprite[] rightJumpFrames = LoadFrames(RightJumpSheetPath, 3);
+            Sprite[] leftFallFrames = LoadFrames(LeftFallSheetPath, 3);
+            Sprite[] rightFallFrames = LoadFrames(RightFallSheetPath, 3);
+            Sprite[] redMaskIdleFrames = LoadFrames(RedMaskIdleSheetPath, 8);
 
             GameObject root = PrefabUtility.LoadPrefabContents(PlayerPrefabPath);
             try
@@ -42,7 +64,7 @@ namespace HongMao.Editor
 
                 SpriteRenderer animatedRenderer = spriteTransform.GetComponent<SpriteRenderer>();
                 if (animatedRenderer == null) animatedRenderer = spriteTransform.gameObject.AddComponent<SpriteRenderer>();
-                animatedRenderer.sprite = groundOneFrames[0];
+                animatedRenderer.sprite = idleFrames[0];
                 animatedRenderer.color = Color.white;
                 animatedRenderer.sortingOrder = 5;
                 animatedRenderer.enabled = true;
@@ -56,11 +78,15 @@ namespace HongMao.Editor
 
                 PrototypeCharacterVisual visual = root.GetComponent<PrototypeCharacterVisual>();
                 if (visual == null) throw new InvalidOperationException("Player prefab has no PrototypeCharacterVisual component.");
-                visual.ConfigureSpriteAnimation(animatedRenderer, groundOneFrames, groundTwoFrames, groundThreeFrames,
-                    runFrames);
+                // Apply only the available originals; never rebind future action art to placeholder sheets.
+                visual.ConfigureAnimatedRenderer(animatedRenderer);
+                visual.ConfigureLocomotionSprites(idleFrames, leftRunFrames, rightRunFrames, OriginalFramesPerSecond);
+                visual.ConfigureAirborneSprites(leftJumpFrames, rightJumpFrames, leftFallFrames, rightFallFrames,
+                    OriginalFramesPerSecond);
+                visual.ConfigureRedMaskIdleSprites(redMaskIdleFrames);
 
                 PrefabUtility.SaveAsPrefabAsset(root, PlayerPrefabPath);
-                Debug.Log("Applied the player normal attacks and running sprite animations to PlayerPrototype.prefab.");
+                Debug.Log("Applied Li and Ban's original idle, left/right movement, jump/fall, and red-mask idle sprites to PlayerPrototype.prefab; other action bindings retained.");
             }
             finally
             {
@@ -68,14 +94,65 @@ namespace HongMao.Editor
             }
         }
 
-        static Sprite[] LoadFrames(string path)
+        static void ImportOriginalSheet(string path, int frameCount, int footBottomFromTop)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null) throw new InvalidOperationException($"No texture importer at {path}.");
+            importer.GetSourceTextureWidthAndHeight(out int width, out int height);
+            if (width != OriginalCellSize * frameCount || height != OriginalCellSize)
+                throw new InvalidOperationException($"Expected a single row of {frameCount} 64x64 frames at {path}, found {width}x{height}.");
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Multiple;
+            importer.spritePixelsPerUnit = OriginalPixelsPerUnit;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.maxTextureSize = 1024;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            settings.spriteGenerateFallbackPhysicsShape = false;
+            importer.SetTextureSettings(settings);
+
+            var factories = new SpriteDataProviderFactories();
+            factories.Init();
+            ISpriteEditorDataProvider provider = factories.GetSpriteEditorDataProviderFromObject(importer);
+            provider.InitSpriteEditorDataProvider();
+            SpriteRect[] existing = provider.GetSpriteRects();
+            var rects = new SpriteRect[frameCount];
+            for (int i = 0; i < frameCount; i++)
+            {
+                string name = $"{Path.GetFileNameWithoutExtension(path).TrimEnd()}_{i:D2}";
+                SpriteRect previous = existing.FirstOrDefault(rect => rect.name == name);
+                rects[i] = new SpriteRect
+                {
+                    name = name,
+                    rect = new Rect(i * OriginalCellSize, 0, OriginalCellSize, OriginalCellSize),
+                    alignment = SpriteAlignment.Custom,
+                    pivot = new Vector2(0.5f, (OriginalCellSize - footBottomFromTop) / (float)OriginalCellSize),
+                    spriteID = previous == null ? GUID.Generate() : previous.spriteID
+                };
+            }
+            provider.SetSpriteRects(rects);
+            provider.GetDataProvider<ISpriteNameFileIdDataProvider>()
+                .SetNameFileIdPairs(rects.Select(rect => new SpriteNameFileIdPair(rect.name, rect.spriteID)));
+            provider.Apply();
+            importer.SaveAndReimport();
+        }
+
+        static Sprite[] LoadFrames(string path, int expectedCount = 6)
         {
             Sprite[] frames = AssetDatabase.LoadAllAssetRepresentationsAtPath(path)
                 .OfType<Sprite>()
                 .OrderBy(sprite => sprite.name, StringComparer.Ordinal)
                 .ToArray();
-            if (frames.Length != 6)
-                throw new InvalidOperationException($"Expected 6 sprites at {path}, found {frames.Length}.");
+            if (frames.Length != expectedCount)
+                throw new InvalidOperationException($"Expected {expectedCount} sprites at {path}, found {frames.Length}.");
             return frames;
         }
     }

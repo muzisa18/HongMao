@@ -264,7 +264,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 845840580036793166, guid: 33498644d55894002ae8ea703137cce3, type: 3}
+  m_Sprite: {fileID: -550020646, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -830,6 +830,64 @@ MonoBehaviour:
   - {fileID: 1052878893449196775, guid: a652b5602486c424e8629f5960e871a3, type: 3}
   - {fileID: -1175256002465436730, guid: a652b5602486c424e8629f5960e871a3, type: 3}
   - {fileID: -4662938274320710767, guid: a652b5602486c424e8629f5960e871a3, type: 3}
+  idleFrames:
+  - {fileID: -550020646, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 329232018, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 510001454, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 1566347420, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 43044317, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 1031254966, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 469426738, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  - {fileID: 167562958, guid: 1f33b7b819b9c4887ab678448c135ab0, type: 3}
+  leftRunFrames:
+  - {fileID: 1557204092, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: 586851674, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: -642589285, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: 1749171268, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: -1922248817, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: 1939421416, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: -218687923, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: -1633811165, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: 1147394490, guid: f9a865822138d48df914f3489449f930, type: 3}
+  - {fileID: -2090422816, guid: f9a865822138d48df914f3489449f930, type: 3}
+  rightRunFrames:
+  - {fileID: -1314029283, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 1288420272, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 146219828, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 728303768, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 1575782882, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 678835557, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 208698555, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: -1776790755, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: 1413380755, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  - {fileID: -1844832221, guid: d2e5fd33ac8c04afd9a64968c6ade7d5, type: 3}
+  locomotionFramesPerSecond: 10
+  leftJumpFrames:
+  - {fileID: -566655048, guid: ee74d57e7ce13401c85e4a40b2e17ed8, type: 3}
+  - {fileID: -1030231194, guid: ee74d57e7ce13401c85e4a40b2e17ed8, type: 3}
+  - {fileID: 1315642487, guid: ee74d57e7ce13401c85e4a40b2e17ed8, type: 3}
+  rightJumpFrames:
+  - {fileID: 566215487, guid: e278584045bc242639e40960a75b2436, type: 3}
+  - {fileID: -1165351212, guid: e278584045bc242639e40960a75b2436, type: 3}
+  - {fileID: 921199501, guid: e278584045bc242639e40960a75b2436, type: 3}
+  leftFallFrames:
+  - {fileID: 1066268972, guid: 2f3813334b7554416b09cb685aceba0f, type: 3}
+  - {fileID: 1668487983, guid: 2f3813334b7554416b09cb685aceba0f, type: 3}
+  - {fileID: 999611790, guid: 2f3813334b7554416b09cb685aceba0f, type: 3}
+  rightFallFrames:
+  - {fileID: 598324656, guid: ddc0330f048a9463daff046388994a59, type: 3}
+  - {fileID: -1826444555, guid: ddc0330f048a9463daff046388994a59, type: 3}
+  - {fileID: -1224546447, guid: ddc0330f048a9463daff046388994a59, type: 3}
+  redMaskIdleFrames:
+  - {fileID: -1238252942, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: -1786083621, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: 772024748, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: -1293104363, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: -1826798004, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: -938280523, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: 2120159318, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  - {fileID: -696876863, guid: a06f9a1a0e09e47f58e6a3fd3fb37b0e, type: 3}
+  airborneFramesPerSecond: 10
 --- !u!1 &7942644238128300642
 GameObject:
   m_ObjectHideFlags: 0
