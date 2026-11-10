@@ -54,3 +54,18 @@
 - `CombatTimeController` remains the sole runtime owner of time scale and now combines dialogue pause with hit-stop/absorb. Dialogue never re-enables combat after victory/defeat.
 - Setup, editing and smoke route: `Docs/AI/DialogueGuide.md`. PlayMode coverage: `DialogueTests`.
 - Repository baseline inspected: `26ee22e`; Unity 6000.3.23f1 batch tooling available. No callable Unity MCP in this session. Runtime/test assemblies otherwise unchanged, except PlayMode tests also reference the existing Input System assembly for simulated keyboard/mouse input.
+
+## Original player locomotion art (2026-11-04)
+
+- Li and Ban's originals are in `Assets/HongMao/Art/鸿毛精灵图/`: idle 8 frames and separate left/right movement 10 frames each, all 64×64 at 100ms per frame. PNG and Aseprite sources remain unchanged.
+- `PrototypeCharacterVisual` uses these only for grounded idle/movement, retains existing attack/action sprites and legacy fallback, and compensates the existing parent mirror for native-left artwork.
+- `PlayerSpritePrototypeAuthoring.Apply` imports at 30 PPU with fixed foot pivots and binds `PlayerPrototype`; existing scenes inherit the prefab. Details: `Docs/AI/PlayerArtIntegration.md`.
+- Official Unity MCP relay read-only Editor probe succeeded for this project. Unity 6000.3.23f1 compiled successfully; PlayMode 23/23 passed, including 3 original locomotion checks.
+
+## Original airborne and red-mask idle art (2026-11-09)
+
+- Added original left/right jump and fall sheets (3 frames each) and GuanYu red-mask idle (8 frames), all 64×64 and 100ms per frame. Airborne pivots share the movement body reference; GuanYu idle is foot-aligned at the same 30 PPU.
+- Rising plays jump once then holds its last frame; descent loops fall. Airborne direction changes preserve progress, landing restores grounded locomotion, and active actions retain priority.
+- The actual `CombatResourceModel.IsMaskActive` state selects GuanYu idle while grounded and stationary. Authored idle keeps its original palette; other not-yet-authored mask actions retain existing feedback. Palette updates run after input/action transitions.
+- The art authoring command updates only available original clips and preserves every other action binding, so future original work cannot be reset to the old placeholder sheets by this command. Continue using Li and Ban's original PNG/Aseprite assets.
+- No running Editor connection during the read-only MCP probe; validated via Unity 6000.3.23f1 CLI. PlayMode 26/26 passed, including 6 original-art tests. Source image bytes, existing action references, scene files, and project settings preserved.

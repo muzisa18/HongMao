@@ -14,6 +14,10 @@ HongMao uses a single project context: `CONTEXT.md` and `Docs/adr/`. See `Docs/a
 
 Before each GitHub push, add a dated entry to `Docs/CHANGELOG.md` summarizing the changes and validation for that push. Include the entry in the pushed commit.
 
+### Art integration
+
+Use and retain the persistent `li/art-integration` branch for art integration PRs. Ban supplies the artwork; Li imports it in Unity. Commit the relevant `.meta` files, including GUIDs and slicing data, together with the integrated Prefabs, scripts, and tests. Preserve existing metadata and follow `Docs/agents/art-integration.md` to update or create the PR.
+
 ### Unity MCP connection
 
 Before Unity feature implementation or debugging, check whether Unity MCP tools are callable for this project and verify the connection with a read-only Editor request, such as the active scene hierarchy or Console. Configuration and server `ready` status alone do not establish an Editor connection. Tell the user whether the probe succeeded. If it fails, explain the limitation and continue with project files and Unity CLI validation where appropriate; identify any Editor-only checks still needed.
