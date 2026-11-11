@@ -92,7 +92,9 @@ git switch -c li/feat-player-animation
 4. Commit 并推送自己的分支。
 5. 创建 PR，填写仓库提供的模板。
 6. 另一人 Review；有修改意见时继续向同一分支提交。
-7. 审核通过、检查完成后再合并，合并后删除功能分支。
+7. 审核通过、检查完成后再合并；普通功能分支合并后删除，固定会议记录分支 `li/docs-meetings` 保留复用。
+
+会议记录在同一个 Unity 工程目录中切换固定分支提交；切换前检查并保留其他开发改动，具体步骤见 [会议记录提交流程](Docs/agents/meeting-records.md)。
 
 ## PR 审核重点
 
